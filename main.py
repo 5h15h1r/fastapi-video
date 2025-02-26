@@ -10,6 +10,8 @@ import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+import mimetypes
+from fastapi.responses import FileResponse
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -24,6 +26,21 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+#video_uploads/9bb2a1a8-8eab-4e67-a8f8-0ce9d8ebc125_20250226_081822.webm
+
+@app.get("/video_uploads/{filename}")
+async def get_video(filename: str):
+    file_path = f"video_uploads/{filename}"
+    
+    if not os.path.exists(file_path):
+        return {"error": "File not found"}
+    
+    # Detect the correct MIME type
+    mime_type, _ = mimetypes.guess_type(file_path)
+    if mime_type is None:
+        mime_type = "application/octet-stream"  # Default MIME type
+
+    return FileResponse(file_path, media_type=mime_type, headers={"Accept-Ranges": "bytes"})
 
 UPLOAD_DIR = "video_uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
