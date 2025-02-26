@@ -5,7 +5,7 @@ import os
 import uuid
 from datetime import datetime
 from typing import List
-
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -27,7 +27,7 @@ app.add_middleware(
 
 UPLOAD_DIR = "video_uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
-
+app.mount("/video_uploads", StaticFiles(directory="video_uploads"), name="videos")
 class ConnectionManager:
     def __init__(self):
         self.active_connections: List[WebSocket] = []
